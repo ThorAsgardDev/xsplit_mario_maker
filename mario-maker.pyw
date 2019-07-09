@@ -147,23 +147,27 @@ class MainFrame(tkinter.Frame):
 		keyboard.add_hotkey(self.config["SHEET"]["HOTKEY_LOST_LIVES_PLUS"], lambda: window.after(1, self.on_hotkey_lost_lives_plus))
 		
 	def on_hotkey_lost_lives_minus(self):
-		value = int(self.label_lost_lives.cget("text"))
-		value -= 1
-		if value < 0:
-			value = 0
-		value = str(value)
-		self.label_lost_lives.config(text = value)
-		self.write_file("w", "text-files/lost-lives.txt", value)
+		value_str = self.label_lost_lives.cget("text")
+		if value_str != "":
+			value = int(value_str)
+			value -= 1
+			if value < 0:
+				value = 0
+			value = str(value)
+			self.label_lost_lives.config(text = value)
+			self.write_file("w", "text-files/lost-lives.txt", value)
 		
 	def on_hotkey_lost_lives_plus(self):
-		value = int(self.label_lost_lives.cget("text"))
-		value += 1
-		if value >= 99999:
-			value = 99999
-		value = str(value)
-		self.label_lost_lives.config(text = value)
-		self.write_file("w", "text-files/lost-lives.txt", value)
-		
+		value_str = self.label_lost_lives.cget("text")
+		if value_str != "":
+			value = int(value_str)
+			value += 1
+			if value >= 99999:
+				value = 99999
+			value = str(value)
+			self.label_lost_lives.config(text = value)
+			self.write_file("w", "text-files/lost-lives.txt", value)
+			
 	def on_previous_click(self):
 		self.current_contest_line_id -= 1
 		self.process_on_current_contest_line_id_changed()
