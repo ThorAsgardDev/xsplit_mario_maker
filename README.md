@@ -23,7 +23,7 @@ pip install keyboard
    7. Cliquer sur "+ACTIVER DES APIS ET DES SERVICES"
    8. Chercher "sheets"
    9. Cliquer sur "Google Sheets API"
-  10. Si il y a un bouton GERER, ne rien faire, si il y a un bouton "ACTIVER", cliquer dessus
+   10. Si il y a un bouton GERER, ne rien faire, si il y a un bouton "ACTIVER", cliquer dessus
 
 5. Double cliquer sur le fichier "grant_permissions.bat" et suivre les instructions
 
