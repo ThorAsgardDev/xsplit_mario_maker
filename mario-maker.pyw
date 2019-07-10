@@ -1,4 +1,5 @@
 
+import sys
 import os
 import time
 import configparser
@@ -14,6 +15,7 @@ import keyboard
 
 
 class MainFrame(tkinter.Frame):
+	TOKENS_FILENAME = "tokens.ini"
 
 	def __init__(self, window, **kwargs):
 		tkinter.Frame.__init__(self, window, **kwargs)
@@ -24,7 +26,6 @@ class MainFrame(tkinter.Frame):
 		self.config = configparser.ConfigParser()
 		self.config.read("config.ini")
 		
-		self.sheets_api = sheets_api.SheetsApi(self.config["SHEET"]["GDOC_API_KEY"], self.config["SHEET"]["SPREAD_SHEET_ID"])
 		self.contest_lines = None
 		self.current_contest_line_id = None
 		
@@ -121,10 +122,17 @@ class MainFrame(tkinter.Frame):
 		
 		label = tkinter.Label(self.frame_sheet_labels, text = "Statut: ")
 		label.pack(anchor = tkinter.W, padx = 5, pady = 5)
-		self.label_status = tkinter.Label(self.frame_sheet_values)
-		self.label_status.pack(anchor = tkinter.W, padx = 5, pady = 5)
+		self.frame_sheet_values_status = tkinter.Frame(self.frame_sheet_values)
+		self.frame_sheet_values_status.pack(side = tkinter.TOP, expand = tkinter.YES, fill = tkinter.BOTH)
+		self.label_status = tkinter.Label(self.frame_sheet_values_status)
+		self.label_status.pack(side = tkinter.LEFT, padx = 5)
+		button = tkinter.Button(self.frame_sheet_values_status, relief = tkinter.GROOVE, text = "Terminé!", command = self.on_level_completed_click)
+		button.pack(side = tkinter.RIGHT, fill = tkinter.X, padx = 5)
 		
 		button = tkinter.Button(self.frame_sheet_bottom, relief = tkinter.GROOVE, text = "Envoyer les valeurs vers XSplit", command = self.on_update_xsplit_click)
+		button.pack(fill = tkinter.X, padx = 5, pady = 5)
+		
+		button = tkinter.Button(self.frame_sheet_bottom, relief = tkinter.GROOVE, text = "Envoyer les valeurs vers GDoc", command = self.on_update_gdoc_click)
 		button.pack(fill = tkinter.X, padx = 5, pady = 5)
 		
 		label = tkinter.Label(self.frame_life_labels, text = "Vies perdues: ")
@@ -147,27 +155,42 @@ class MainFrame(tkinter.Frame):
 		keyboard.add_hotkey(self.config["SHEET"]["HOTKEY_LOST_LIVES_PLUS"], lambda: window.after(1, self.on_hotkey_lost_lives_plus))
 		
 	def on_hotkey_lost_lives_minus(self):
-		value_str = self.label_lost_lives.cget("text")
+		if self.current_contest_line_id == None:
+			return
+		line = self.contest_lines[self.current_contest_line_id]
+		value_str = self.model["lost_lives"][line]
 		if value_str != "":
 			value = int(value_str)
 			value -= 1
 			if value < 0:
 				value = 0
 			value = str(value)
+			self.model["lost_lives"][line] = value
 			self.label_lost_lives.config(text = value)
 			self.write_file("w", "text-files/lost-lives.txt", value)
 		
 	def on_hotkey_lost_lives_plus(self):
-		value_str = self.label_lost_lives.cget("text")
+		if self.current_contest_line_id == None:
+			return
+		line = self.contest_lines[self.current_contest_line_id]
+		value_str = self.model["lost_lives"][line]
 		if value_str != "":
 			value = int(value_str)
 			value += 1
 			if value >= 99999:
 				value = 99999
 			value = str(value)
+			self.model["lost_lives"][line] = value
 			self.label_lost_lives.config(text = value)
 			self.write_file("w", "text-files/lost-lives.txt", value)
 			
+	def on_level_completed_click(self):
+		self.timer_action_stop()
+		self.save_sheet()
+		
+	def on_update_gdoc_click(self):
+		self.save_sheet()
+		
 	def on_previous_click(self):
 		self.current_contest_line_id -= 1
 		self.process_on_current_contest_line_id_changed()
@@ -241,9 +264,11 @@ class MainFrame(tkinter.Frame):
 		return h + ":" + m + ":" + s
 		
 	def update_timer(self):
-		t = self.timeStrToSec(self.label_timer.cget("text"))
+		line = self.contest_lines[self.current_contest_line_id]
+		t = self.timeStrToSec(self.model["timer"][line])
 		t += 1
 		s = self.timeSecToStr(t)
+		self.model["timer"][line] = s
 		self.label_timer.config(text = s)
 		self.write_file("w", "text-files/timer.txt", s)
 		
@@ -284,6 +309,7 @@ class MainFrame(tkinter.Frame):
 		self.process_on_current_contest_line_id_changed()
 		
 	def process_on_current_contest_line_id_changed(self):
+		self.timer_action_stop()
 		self.update_navigate_buttons_status()
 		line = self.contest_lines[self.current_contest_line_id]
 		self.label_theme.config(text = self.model["theme"][line])
@@ -393,7 +419,33 @@ class MainFrame(tkinter.Frame):
 		
 		self.model = self.build_model(values)
 		
+	def save_sheet(self):
+		config_sheet = self.config["SHEET"]
+		sheet_name = config_sheet["SHEET_NAME"]
+		first_line = config_sheet["FIRST_LINE"]
+		ranges_values = [
+			{
+				"range": sheet_name + "!" + config_sheet["STATUS_COLUMN"] + first_line + ":" + config_sheet["STATUS_COLUMN"],
+				"values": [[i] for i in self.model["status"]]
+			},
+			{
+				"range": sheet_name + "!" + config_sheet["TIMER_COLUMN"] + first_line + ":" + config_sheet["TIMER_COLUMN"],
+				"values": [[i] for i in self.model["timer"]]
+			},
+			{
+				"range": sheet_name + "!" + config_sheet["LOST_LIVES_COLUMN"] + first_line + ":" + config_sheet["LOST_LIVES_COLUMN"],
+				"values": [[i] for i in self.model["lost_lives"]]
+			},
+		]
+		
+		self.sheets_api.set_values(ranges_values)
+		
 	def load(self):
+		if not os.path.isfile(MainFrame.TOKENS_FILENAME):
+			tkinter.messagebox.showerror("Error", " File "+ MainFrame.TOKENS_FILENAME +" not found. Please run grant_permissions.bat.")
+			sys.exit()
+			
+		self.sheets_api = sheets_api.SheetsApi(self.config["SHEET"]["GDOC_API_KEY"], self.config["SHEET"]["OAUTH_CLIENT_ID"], self.config["SHEET"]["OAUTH_CLIENT_SECRET"], self.config["SHEET"]["SPREAD_SHEET_ID"], MainFrame.TOKENS_FILENAME)
 		self.load_sheet()
 		if self.fill_contests():
 			self.load_context("context.sav")
@@ -425,8 +477,8 @@ class MainFrame(tkinter.Frame):
 def main():
 	window = tkinter.Tk()
 	window.title("Mario Maker")
-	window.geometry("300x575")
-	window.geometry(("+" + str(int((window.winfo_screenwidth() - 300) / 2)) + "+"+ str(int((window.winfo_screenheight() - 575) / 2))))
+	window.geometry("300x600")
+	window.geometry(("+" + str(int((window.winfo_screenwidth() - 300) / 2)) + "+"+ str(int((window.winfo_screenheight() - 600) / 2))))
 	f = MainFrame(window)
 	window.protocol("WM_DELETE_WINDOW", f.on_close)
 	icon = tkinter.PhotoImage(file = "resources/icon.png")

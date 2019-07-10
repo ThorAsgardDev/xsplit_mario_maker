@@ -12,7 +12,23 @@ pip install keyboard
 
 3. Modifier le fichier config.ini pour renseigner la clé API (la méthode pour obtenir une clé API est détaillée ici: https://github.com/ThorAsgardDev/xsplit_retrolection_extension)
 
-4. Double cliquer sur le fichier "mario-maker.pyw"
+4. Modifier le fichier config.ini pour renseigner les valeurs <CLIENT_ID> et <CLIENT_SECRET>
+Voici la marche à suivre pour obtenir ces valeurs:
+    a) Aller à l'adresse suivante: https://console.developers.google.com/apis/credentials
+    b) Cliquer sur "Créer des identifiants" -> ID client OAuth
+        - Si vous n'avez pas déjà configuré un écran d'autorisation, un bouton "Configurer l'écran d'autorisation" apparait, cliquer dessus, entrer une valeur dans le champ "Nom de l'application" (ex: MyApp) et cliquer sur le bouton "Enregistrer"
+    c) Sélectionner "Autre"
+    d) Cliquer sur "Créer"
+    e) Noter les valeurs Client id et Client Secret et les mettre dans le fichier config.ini
+    f) Cliquer à gauche sur "Tableau de bord"
+    g) Cliquer sur "+ACTIVER DES APIS ET DES SERVICES"
+    h) Chercher "sheets"
+    i) Cliquer sur "Google Sheets API"
+    j) Si il y a un bouton GERER, ne rien faire, si il y a un bouton "ACTIVER", cliquer dessus
+
+5. Double cliquer sur le fichier "grant_permissions.bat" et suivre les instructions
+
+6. Double cliquer sur le fichier "mario-maker.pyw"
 
 
 Côté XSplit:
