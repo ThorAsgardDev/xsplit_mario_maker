@@ -42,7 +42,7 @@ Nombre de vies perdues: <appli mario-maker>/text-files/lost-lives.txt
 Statut: <appli mario-maker>/text-files/status.txt
 Theme: <appli mario-maker>/text-files/theme.txt
 Nom du viewer: <appli mario-maker>/text-files/viewer.txt
-Timer du jeu: <appli mario-maker>/text-files/timer.txt
+Temps de jeu: <appli mario-maker>/text-files/time.txt
 ```
 
 Pour les timers il y a un bug côté XSplit. On peut le contourner en utilisant la manip suivante:

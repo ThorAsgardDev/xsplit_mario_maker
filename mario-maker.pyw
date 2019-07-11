@@ -27,7 +27,7 @@ class MainFrame(tkinter.Frame):
 		self.config.read("config.ini")
 		
 		self.contest_lines = None
-		self.current_contest_line_id = None
+		self.selected_contest_line_id = None
 		
 		self.pack(expand = tkinter.YES, fill = tkinter.BOTH)
 		
@@ -45,44 +45,29 @@ class MainFrame(tkinter.Frame):
 		self.frame_logo = tkinter.Frame(self.frame)
 		self.frame_logo.pack(side = tkinter.BOTTOM, fill = tkinter.BOTH)
 		
-		self.frame_sheet = tkinter.LabelFrame(self.frame, text = "Gdoc")
-		self.frame_sheet.pack(side = tkinter.TOP, fill = tkinter.BOTH, padx = 5, pady = 5)
+		self.frame_level = tkinter.LabelFrame(self.frame, text = "Level")
+		self.frame_level.pack(side = tkinter.TOP, fill = tkinter.BOTH, padx = 5, pady = 5)
 		
-		self.frame_sheet_top = tkinter.Frame(self.frame_sheet)
-		self.frame_sheet_top.pack(side = tkinter.TOP, fill = tkinter.BOTH)
+		self.frame_level_labels = tkinter.Frame(self.frame_level)
+		self.frame_level_labels.pack(side = tkinter.LEFT, fill = tkinter.BOTH)
 		
-		self.frame_sheet_bottom = tkinter.Frame(self.frame_sheet)
-		self.frame_sheet_bottom.pack(side = tkinter.BOTTOM, fill = tkinter.BOTH)
+		self.frame_level_values = tkinter.Frame(self.frame_level)
+		self.frame_level_values.pack(side = tkinter.RIGHT, expand = tkinter.YES, fill = tkinter.BOTH)
 		
-		self.frame_life = tkinter.LabelFrame(self.frame, text = "")
-		self.frame_life.pack(side = tkinter.TOP, fill = tkinter.BOTH, padx = 5, pady = 5)
+		self.frame_run = tkinter.LabelFrame(self.frame, text = "Run")
+		self.frame_run.pack(side = tkinter.TOP, fill = tkinter.BOTH, padx = 5, pady = 5)
 		
-		self.frame_timer = tkinter.LabelFrame(self.frame, text = "Timer")
-		self.frame_timer.pack(side = tkinter.TOP, fill = tkinter.BOTH, padx = 5, pady = 5)
+		self.frame_run_top = tkinter.Frame(self.frame_run)
+		self.frame_run_top.pack(side = tkinter.TOP, fill = tkinter.BOTH)
 		
-		self.frame_timer_top = tkinter.Frame(self.frame_timer)
-		self.frame_timer_top.pack(side = tkinter.TOP, fill = tkinter.BOTH)
+		self.frame_run_bottom = tkinter.Frame(self.frame_run)
+		self.frame_run_bottom.pack(side = tkinter.BOTTOM, fill = tkinter.BOTH)
 		
-		self.frame_timer_bottom = tkinter.Frame(self.frame_timer)
-		self.frame_timer_bottom.pack(side = tkinter.BOTTOM, fill = tkinter.BOTH)
+		self.frame_run_labels = tkinter.Frame(self.frame_run_top)
+		self.frame_run_labels.pack(side = tkinter.LEFT, fill = tkinter.BOTH)
 		
-		self.frame_sheet_labels = tkinter.Frame(self.frame_sheet_top)
-		self.frame_sheet_labels.pack(side = tkinter.LEFT, fill = tkinter.BOTH)
-		
-		self.frame_sheet_values = tkinter.Frame(self.frame_sheet_top)
-		self.frame_sheet_values.pack(side = tkinter.RIGHT, expand = tkinter.YES, fill = tkinter.BOTH)
-		
-		self.frame_life_labels = tkinter.Frame(self.frame_life)
-		self.frame_life_labels.pack(side = tkinter.LEFT, fill = tkinter.BOTH)
-		
-		self.frame_life_values = tkinter.Frame(self.frame_life)
-		self.frame_life_values.pack(side = tkinter.RIGHT, expand = tkinter.YES, fill = tkinter.BOTH)
-		
-		self.frame_timer_labels = tkinter.Frame(self.frame_timer_top)
-		self.frame_timer_labels.pack(side = tkinter.LEFT, fill = tkinter.BOTH)
-		
-		self.frame_timer_values = tkinter.Frame(self.frame_timer_top)
-		self.frame_timer_values.pack(side = tkinter.RIGHT, expand = tkinter.YES, fill = tkinter.BOTH)
+		self.frame_run_values = tkinter.Frame(self.frame_run_top)
+		self.frame_run_values.pack(side = tkinter.RIGHT, expand = tkinter.YES, fill = tkinter.BOTH)
 		
 		pil_img = PIL.Image.open("resources/mario-maker.png")
 		self.img_logo = PIL.ImageTk.PhotoImage(pil_img) # reference to image must be kept to avoid garbage deletion
@@ -90,115 +75,142 @@ class MainFrame(tkinter.Frame):
 		canvas.create_image((0, 0), anchor = tkinter.NW, image = self.img_logo)
 		canvas.pack(side = tkinter.TOP)
 		
-		label = tkinter.Label(self.frame_sheet_labels, text = "N° Concours: ")
+		label = tkinter.Label(self.frame_level_labels, text = "N° Concours: ")
 		label.pack(anchor = tkinter.W, padx = 5, pady = 5)
-		self.combo_contests = tkinter.ttk.Combobox(self.frame_sheet_values, state = "readonly")
+		self.combo_contests = tkinter.ttk.Combobox(self.frame_level_values, state = "readonly")
 		self.combo_contests.pack(padx = 5, pady = 5, fill = tkinter.X)
 		self.combo_contests.bind("<<ComboboxSelected>>", self.on_combo_contests_changed)
 		
-		label = tkinter.Label(self.frame_sheet_labels, text = "Navigation: ")
+		label = tkinter.Label(self.frame_level_labels, text = "Navigation: ")
 		label.pack(anchor = tkinter.W, padx = 5, pady = 5)
-		self.frame_sheet_values_navigate = tkinter.Frame(self.frame_sheet_values)
-		self.frame_sheet_values_navigate.pack(side = tkinter.TOP, expand = tkinter.YES, fill = tkinter.BOTH)
-		self.button_navigate_previous = tkinter.Button(self.frame_sheet_values_navigate, relief = tkinter.GROOVE, text = "<<", state = tkinter.DISABLED, command = self.on_previous_click)
+		self.frame_level_values_navigate = tkinter.Frame(self.frame_level_values)
+		self.frame_level_values_navigate.pack(side = tkinter.TOP, expand = tkinter.YES, fill = tkinter.BOTH)
+		self.button_navigate_previous = tkinter.Button(self.frame_level_values_navigate, relief = tkinter.GROOVE, text = "<<", state = tkinter.DISABLED, command = self.on_previous_click)
 		self.button_navigate_previous.pack(side = tkinter.LEFT, expand = tkinter.YES, fill = tkinter.X, padx = 5)
-		self.button_navigate_next = tkinter.Button(self.frame_sheet_values_navigate, relief = tkinter.GROOVE, text = ">>", state = tkinter.DISABLED, command = self.on_next_click)
+		self.button_navigate_next = tkinter.Button(self.frame_level_values_navigate, relief = tkinter.GROOVE, text = ">>", state = tkinter.DISABLED, command = self.on_next_click)
 		self.button_navigate_next.pack(side = tkinter.RIGHT, expand = tkinter.YES, fill = tkinter.X, padx = 5)
 		
-		label = tkinter.Label(self.frame_sheet_labels, text = "Thème: ")
+		label = tkinter.Label(self.frame_level_labels, text = "Thème: ")
 		label.pack(anchor = tkinter.W, padx = 5, pady = 5)
-		self.label_theme = tkinter.Label(self.frame_sheet_values)
+		self.label_theme = tkinter.Label(self.frame_level_values)
 		self.label_theme.pack(anchor = tkinter.W, padx = 5, pady = 5)
 		
-		label = tkinter.Label(self.frame_sheet_labels, text = "Viewer: ")
+		label = tkinter.Label(self.frame_level_labels, text = "Viewer: ")
 		label.pack(anchor = tkinter.W, padx = 5, pady = 5)
-		self.label_viewer = tkinter.Label(self.frame_sheet_values)
+		self.label_viewer = tkinter.Label(self.frame_level_values)
 		self.label_viewer.pack(anchor = tkinter.W, padx = 5, pady = 5)
 		
-		label = tkinter.Label(self.frame_sheet_labels, text = "Code level: ")
+		label = tkinter.Label(self.frame_level_labels, text = "Code level: ")
 		label.pack(anchor = tkinter.W, padx = 5, pady = 5)
-		self.label_level_id = tkinter.Label(self.frame_sheet_values)
+		self.label_level_id = tkinter.Label(self.frame_level_values)
 		self.label_level_id.pack(anchor = tkinter.W, padx = 5, pady = 5)
 		
-		label = tkinter.Label(self.frame_sheet_labels, text = "Statut: ")
+		label = tkinter.Label(self.frame_run_labels, text = "Statut: ")
 		label.pack(anchor = tkinter.W, padx = 5, pady = 5)
-		self.frame_sheet_values_status = tkinter.Frame(self.frame_sheet_values)
-		self.frame_sheet_values_status.pack(side = tkinter.TOP, expand = tkinter.YES, fill = tkinter.BOTH)
-		self.label_status = tkinter.Label(self.frame_sheet_values_status)
-		self.label_status.pack(side = tkinter.LEFT, padx = 5)
-		button = tkinter.Button(self.frame_sheet_values_status, relief = tkinter.GROOVE, text = "Terminé!", command = self.on_level_completed_click)
-		button.pack(side = tkinter.RIGHT, fill = tkinter.X, padx = 5)
+		self.label_status = tkinter.Label(self.frame_run_values)
+		self.label_status.pack(anchor = tkinter.W, padx = 5, pady = 5)
 		
-		button = tkinter.Button(self.frame_sheet_bottom, relief = tkinter.GROOVE, text = "Envoyer les valeurs vers XSplit", command = self.on_update_xsplit_click)
-		button.pack(fill = tkinter.X, padx = 5, pady = 5)
-		
-		button = tkinter.Button(self.frame_sheet_bottom, relief = tkinter.GROOVE, text = "Envoyer les valeurs vers GDoc", command = self.on_update_gdoc_click)
-		button.pack(fill = tkinter.X, padx = 5, pady = 5)
-		
-		label = tkinter.Label(self.frame_life_labels, text = "Vies perdues: ")
+		label = tkinter.Label(self.frame_run_labels, text = "Vies perdues: ")
 		label.pack(anchor = tkinter.W, padx = 5, pady = 5)
-		self.label_lost_lives = tkinter.Label(self.frame_life_values)
+		self.label_lost_lives = tkinter.Label(self.frame_run_values)
 		self.label_lost_lives.pack(anchor = tkinter.W, padx = 5, pady = 5)
 		
-		label = tkinter.Label(self.frame_timer_labels, text = "Level en cours: ")
+		label = tkinter.Label(self.frame_run_labels, text = "Temps: ")
 		label.pack(anchor = tkinter.W, padx = 5, pady = 5)
-		self.label_timer = tkinter.Label(self.frame_timer_values)
-		self.label_timer.pack(anchor = tkinter.W, padx = 5, pady = 5)
+		self.label_time = tkinter.Label(self.frame_run_values)
+		self.label_time.pack(anchor = tkinter.W, padx = 5, pady = 5)
 		
-		self.button_timer_action = tkinter.Button(self.frame_timer_bottom, relief = tkinter.GROOVE, text = "Start", command = self.on_timer_action_click)
-		self.button_timer_action.pack(fill = tkinter.X, padx = 5, pady = 5)
+		self.button_start_pause = tkinter.Button(self.frame_run_bottom, relief = tkinter.GROOVE, text = "Démarrer", command = self.on_start_pause_click)
+		self.button_start_pause.pack(fill = tkinter.X, padx = 5, pady = (5, 0))
 		
-		button = tkinter.Button(self.frame_timer_bottom, relief = tkinter.GROOVE, text = "Reset timer", command = self.on_timer_reset_click)
-		button.pack(fill = tkinter.X, padx = 5, pady = 5)
+		self.button_reset = tkinter.Button(self.frame_run_bottom, relief = tkinter.GROOVE, text = "Remettre à zéro", command = self.on_reset_click)
+		self.button_reset.pack(fill = tkinter.X, padx = 5)
+		
+		self.button_validate = tkinter.Button(self.frame_run_bottom, relief = tkinter.GROOVE, text = "Valider", command = self.on_validate_click)
+		self.button_validate.pack(fill = tkinter.X, padx = 5)
+		
+		self.button_give_up = tkinter.Button(self.frame_run_bottom, relief = tkinter.GROOVE, text = "Abandonner", command = self.on_give_up_click)
+		self.button_give_up.pack(fill = tkinter.X, padx = 5, pady = (0, 5))
 		
 		keyboard.add_hotkey(self.config["SHEET"]["HOTKEY_LOST_LIVES_MINUS"], lambda: window.after(1, self.on_hotkey_lost_lives_minus))
 		keyboard.add_hotkey(self.config["SHEET"]["HOTKEY_LOST_LIVES_PLUS"], lambda: window.after(1, self.on_hotkey_lost_lives_plus))
 		
-	def on_hotkey_lost_lives_minus(self):
-		if self.current_contest_line_id == None:
-			return
-		line = self.contest_lines[self.current_contest_line_id]
-		value_str = self.model["lost_lives"][line]
-		if value_str != "":
-			value = int(value_str)
-			value -= 1
-			if value < 0:
-				value = 0
-			value = str(value)
-			self.model["lost_lives"][line] = value
-			self.label_lost_lives.config(text = value)
-			self.write_file("w", "text-files/lost-lives.txt", value)
+	def get_selected_level_line(self):
+		if self.selected_contest_line_id == None:
+			return None
+		return self.contest_lines[self.selected_contest_line_id]
 		
-	def on_hotkey_lost_lives_plus(self):
-		if self.current_contest_line_id == None:
-			return
-		line = self.contest_lines[self.current_contest_line_id]
-		value_str = self.model["lost_lives"][line]
-		if value_str != "":
-			value = int(value_str)
-			value += 1
-			if value >= 99999:
-				value = 99999
-			value = str(value)
-			self.model["lost_lives"][line] = value
-			self.label_lost_lives.config(text = value)
-			self.write_file("w", "text-files/lost-lives.txt", value)
+	def get_level_model_value(self, value_label):
+		level_line = self.get_selected_level_line()
+		
+		if level_line == None:
+			return None
 			
-	def on_level_completed_click(self):
-		self.timer_action_stop()
-		self.save_sheet()
+		return self.model[value_label][level_line]
 		
-	def on_update_gdoc_click(self):
-		self.save_sheet()
+	def set_level_model_value(self, value_label, value):
+		level_line = self.get_selected_level_line()
 		
+		if level_line == None:
+			return
+			
+		self.model[value_label][level_line] = value
+		
+	def set_lost_lives(self, lost_lives):
+		self.set_level_model_value("lost_lives", lost_lives)
+		self.label_lost_lives.config(text = lost_lives)
+		self.write_file("w", "text-files/lost-lives.txt", lost_lives)
+		
+	def set_status(self, status):
+		self.set_level_model_value("status", status)
+		self.label_status.config(text = status)
+		self.write_file("w", "text-files/status.txt", status)
+		
+	def set_time(self, time_str):
+		self.set_level_model_value("time", time_str)
+		self.label_time.config(text = time_str)
+		self.write_file("w", "text-files/time.txt", time_str)
+		
+	def on_hotkey_lost_lives_minus(self):
+		value_str = self.get_level_model_value("lost_lives")
+		try:
+			value = int(value_str)
+			if value >= 1:
+				value -= 1
+				value = str(value)
+				self.set_lost_lives(value)
+		except:
+			pass
+			
+	def on_hotkey_lost_lives_plus(self):
+		value_str = self.get_level_model_value("lost_lives")
+		try:
+			value = int(value_str)
+			if value < 99999 - 1:
+				value += 1
+				value = str(value)
+				self.set_lost_lives(value)
+		except:
+			pass
+			
 	def on_previous_click(self):
-		self.current_contest_line_id -= 1
-		self.process_on_current_contest_line_id_changed()
-		
+		if self.selected_contest_line_id >= 1:
+			# if run in progress, save it
+			if self.timer_id:
+				self.pause_run()
+				self.save_level_to_sheet()
+			self.selected_contest_line_id -= 1
+			self.process_on_selected_level_changed()
+			
 	def on_next_click(self):
-		self.current_contest_line_id += 1
-		self.process_on_current_contest_line_id_changed()
-		
+		if self.selected_contest_line_id < len(self.contest_lines) - 1:
+			# if run in progress, save it
+			if self.timer_id:
+				self.pause_run()
+				self.save_level_to_sheet()
+			self.selected_contest_line_id += 1
+			self.process_on_selected_level_changed()
+			
 	def on_menu_file_open(self):
 		file_name = tkinter.filedialog.askopenfilename(defaultextension = "*.rcx", filetypes = [("Mario-maker context files", "*.mcx")])
 		if len(file_name) >= 1:
@@ -209,7 +221,18 @@ class MainFrame(tkinter.Frame):
 		if len(file_name) >= 1:
 			self.save_context(file_name)
 			
-	def on_update_xsplit_click(self):
+	def start_timer(self):
+		if self.timer_id:
+			self.window.after_cancel(self.timer_id)
+		self.timer_id = self.window.after(1000, self.update_timer)
+		
+	def stop_timer(self):
+		if self.timer_id:
+			self.window.after_cancel(self.timer_id)
+			self.timer_id = None
+			
+	def start_run(self):
+		self.button_start_pause.config(text = "Pause")
 		if self.combo_contests.current() >= 0:
 			self.write_file("w", "text-files/contest-number.txt", self.combo_contests.cget("values")[self.combo_contests.current()])
 			self.write_file("w", "text-files/theme.txt", self.label_theme.cget("text"))
@@ -217,28 +240,37 @@ class MainFrame(tkinter.Frame):
 			self.write_file("w", "text-files/level-id.txt", self.label_level_id.cget("text"))
 			self.write_file("w", "text-files/status.txt", self.label_status.cget("text"))
 			self.write_file("w", "text-files/lost-lives.txt", self.label_lost_lives.cget("text"))
-			self.write_file("w", "text-files/timer.txt", self.label_timer.cget("text"))
+			self.write_file("w", "text-files/time.txt", self.label_time.cget("text"))
 			
-	def timer_action_start(self):
-		self.button_timer_action.config(text = "Stop")
-		if self.timer_id:
-			self.window.after_cancel(self.timer_id)
-		self.timer_id = self.window.after(1000, self.update_timer)
+		self.start_timer()
 		
-	def timer_action_stop(self):
-		if self.timer_id:
-			self.window.after_cancel(self.timer_id)
-			self.timer_id = None
-		self.button_timer_action.config(text = "Start")
+	def pause_run(self):
+		self.button_start_pause.config(text = "Démarrer")
+		self.stop_timer()
 		
-	def on_timer_action_click(self):
-		if self.button_timer_action.cget("text") == "Start":
-			self.timer_action_start()
+	def on_start_pause_click(self):
+		if self.button_start_pause.cget("text") == "Démarrer":
+			self.start_run()
 		else:
-			self.timer_action_stop()
+			self.pause_run()
+			self.save_level_to_sheet()
 			
-	def on_timer_reset_click(self):
-		self.label_timer.config(text = "00:00:00")
+	def on_reset_click(self):
+		self.pause_run()
+		self.set_time("00:00:00")
+		self.set_status("A faire")
+		self.set_lost_lives("0")
+		self.save_level_to_sheet()
+		
+	def on_validate_click(self):
+		self.set_status("Validé")
+		self.pause_run()
+		self.save_level_to_sheet()
+		
+	def on_give_up_click(self):
+		self.set_status("Abandonné")
+		self.pause_run()
+		self.save_level_to_sheet()
 		
 	def timeStrToSec(self, t):
 		if t == "":
@@ -264,18 +296,19 @@ class MainFrame(tkinter.Frame):
 		return h + ":" + m + ":" + s
 		
 	def update_timer(self):
-		line = self.contest_lines[self.current_contest_line_id]
-		t = self.timeStrToSec(self.model["timer"][line])
+		time_str = self.get_level_model_value("time")
+		t = self.timeStrToSec(time_str)
 		t += 1
-		s = self.timeSecToStr(t)
-		self.model["timer"][line] = s
-		self.label_timer.config(text = s)
-		self.write_file("w", "text-files/timer.txt", s)
-		
+		self.set_time(self.timeSecToStr(t));
 		self.timer_id = self.window.after(1000, self.update_timer)
 		
 	def on_combo_contests_changed(self, event):
 		self.process_on_combo_contests_changed()
+		
+	def process_on_combo_contests_changed(self):
+		self.contest_lines = self.create_contest_lines(self.get_combo_value(self.combo_contests))
+		self.selected_contest_line_id = 0
+		self.process_on_selected_level_changed()
 		
 	def create_contest_lines(self, contest_number_value):
 		lines = []
@@ -294,30 +327,24 @@ class MainFrame(tkinter.Frame):
 			button_previous_target_state = tkinter.DISABLED
 			button_next_target_state = tkinter.DISABLED
 		else:
-			if self.current_contest_line_id == 0:
+			if self.selected_contest_line_id < 1:
 				button_previous_target_state = tkinter.DISABLED
 				
-			if self.current_contest_line_id == len(self.contest_lines) - 1:
+			if self.selected_contest_line_id >= len(self.contest_lines) - 1:
 				button_next_target_state = tkinter.DISABLED
 				
 		self.button_navigate_previous.config(state = button_previous_target_state)
 		self.button_navigate_next.config(state = button_next_target_state)
 		
-	def process_on_combo_contests_changed(self):
-		self.contest_lines = self.create_contest_lines(self.get_combo_value(self.combo_contests))
-		self.current_contest_line_id = 0
-		self.process_on_current_contest_line_id_changed()
-		
-	def process_on_current_contest_line_id_changed(self):
-		self.timer_action_stop()
+	def process_on_selected_level_changed(self):
+		self.pause_run()
 		self.update_navigate_buttons_status()
-		line = self.contest_lines[self.current_contest_line_id]
-		self.label_theme.config(text = self.model["theme"][line])
-		self.label_viewer.config(text = self.model["viewer"][line])
-		self.label_level_id.config(text = self.model["level_id"][line])
-		self.label_status.config(text = self.model["status"][line])
-		self.label_timer.config(text = self.model["timer"][line])
-		self.label_lost_lives.config(text = self.model["lost_lives"][line])
+		self.label_theme.config(text = self.get_level_model_value("theme"))
+		self.label_viewer.config(text = self.get_level_model_value("viewer"))
+		self.label_level_id.config(text = self.get_level_model_value("level_id"))
+		self.label_status.config(text = self.get_level_model_value("status"))
+		self.label_time.config(text = self.get_level_model_value("time"))
+		self.label_lost_lives.config(text = self.get_level_model_value("lost_lives"))
 		
 	def fill_contests(self):
 		lst = self.model["contest_number"]
@@ -366,8 +393,8 @@ class MainFrame(tkinter.Frame):
 			{"label": "contest_number", "default_value": ""},
 			{"label": "viewer", "default_value": ""},
 			{"label": "level_id", "default_value": ""},
-			{"label": "status", "default_value": "à faire"},
-			{"label": "timer", "default_value": "00:00:00"},
+			{"label": "status", "default_value": "A faire"},
+			{"label": "time", "default_value": "00:00:00"},
 			{"label": "lost_lives", "default_value": "0"},
 		]
 		
@@ -411,7 +438,7 @@ class MainFrame(tkinter.Frame):
 			sheet_name + "!" + config_sheet["VIEWER_COLUMN"] + first_line + ":" + config_sheet["VIEWER_COLUMN"],
 			sheet_name + "!" + config_sheet["LEVEL_ID_COLUMN"] + first_line + ":" + config_sheet["LEVEL_ID_COLUMN"],
 			sheet_name + "!" + config_sheet["STATUS_COLUMN"] + first_line + ":" + config_sheet["STATUS_COLUMN"],
-			sheet_name + "!" + config_sheet["TIMER_COLUMN"] + first_line + ":" + config_sheet["TIMER_COLUMN"],
+			sheet_name + "!" + config_sheet["TIME_COLUMN"] + first_line + ":" + config_sheet["TIME_COLUMN"],
 			sheet_name + "!" + config_sheet["LOST_LIVES_COLUMN"] + first_line + ":" + config_sheet["LOST_LIVES_COLUMN"],
 		]
 
@@ -419,22 +446,24 @@ class MainFrame(tkinter.Frame):
 		
 		self.model = self.build_model(values)
 		
-	def save_sheet(self):
+	def save_level_to_sheet(self):
 		config_sheet = self.config["SHEET"]
 		sheet_name = config_sheet["SHEET_NAME"]
 		first_line = config_sheet["FIRST_LINE"]
+		level_line = self.get_selected_level_line()
+		line = str(int(first_line) + level_line)
 		ranges_values = [
 			{
-				"range": sheet_name + "!" + config_sheet["STATUS_COLUMN"] + first_line + ":" + config_sheet["STATUS_COLUMN"],
-				"values": [[i] for i in self.model["status"]]
+				"range": sheet_name + "!" + config_sheet["STATUS_COLUMN"] + line + ":" + config_sheet["STATUS_COLUMN"] + line,
+				"values": [[self.get_level_model_value("status")]]
 			},
 			{
-				"range": sheet_name + "!" + config_sheet["TIMER_COLUMN"] + first_line + ":" + config_sheet["TIMER_COLUMN"],
-				"values": [[i] for i in self.model["timer"]]
+				"range": sheet_name + "!" + config_sheet["TIME_COLUMN"] + line + ":" + config_sheet["TIME_COLUMN"] + line,
+				"values": [[self.get_level_model_value("time")]]
 			},
 			{
-				"range": sheet_name + "!" + config_sheet["LOST_LIVES_COLUMN"] + first_line + ":" + config_sheet["LOST_LIVES_COLUMN"],
-				"values": [[i] for i in self.model["lost_lives"]]
+				"range": sheet_name + "!" + config_sheet["LOST_LIVES_COLUMN"] + line + ":" + config_sheet["LOST_LIVES_COLUMN"] + line,
+				"values": [[self.get_level_model_value("lost_lives")]]
 			},
 		]
 		
