@@ -1,6 +1,6 @@
 # xsplit_mario_maker
 
-1. Télécharger et installer python 3:
+1. Télécharger et installer python 3 :
 https://www.python.org/downloads/
 
 2. Installer les modules python "Pillow", "requests" et "keyboard" en tapant les commandes:
